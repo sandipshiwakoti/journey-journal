@@ -26,7 +26,6 @@ const updateUser = asyncWrapper(async (req, res, next) => {
   }
 
   const user = await User.findOne({ _id: userId });
-  console.log(user);
 
   if (!user) {
     return next(

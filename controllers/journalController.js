@@ -8,10 +8,19 @@ const Journal = require("../models/journal");
 const user = require("../models/user");
 
 const createJournal = asyncWrapper(async (req, res, next) => {
-  const { title } = req.body;
+  const { title, description } = req.body;
   const createdBy = req.user.userId;
 
-  let body = { title, createdBy };
+  if (!title || !description) {
+    return next(
+      new BadRequestError(
+        "Required fields must be provided",
+        StatusCodes.BAD_REQUEST
+      )
+    );
+  }
+
+  let body = { title, description, createdBy };
 
   if (req.file) {
     const result = await cloudinary.uploader.upload(req.file.path, {
@@ -49,8 +58,8 @@ const getJournal = asyncWrapper(async (req, res, next) => {
 const updateJournal = asyncWrapper(async (req, res, next) => {
   const { id } = req.params;
   const createdBy = req.user.userId;
-  const { title } = req.body;
-  if (!title) {
+  const { title, description } = req.body;
+  if (!title || !description) {
     return next(
       new BadRequestError(
         "Required fields must be provided",
@@ -65,7 +74,7 @@ const updateJournal = asyncWrapper(async (req, res, next) => {
     next(new BadRequestError("Journal not found", StatusCodes.BAD_REQUEST));
   }
 
-  let body = { title };
+  let body = { title, description };
   if (req.file) {
     if (journal.imageId) {
       await cloudinary.uploader.destroy(journal.imageId);
