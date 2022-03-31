@@ -50,8 +50,17 @@ const register = asyncWrapper(async (req, res, next) => {
     fullname,
     mobile,
   });
-  // res.status(StatusCodes.CREATED).json(user);
-  res.status(StatusCodes.CREATED).json({ success: true, data: user });
+  const payload = {
+    userId: user._id,
+    email,
+    fullname: user.fullname,
+    mobile: user.mobile,
+  };
+  const secret = process.env.JWT_SECRET;
+  const options = { expiresIn: "10d" };
+  const token = await jwt.sign(payload, secret, options);
+  res.status(StatusCodes.CREATED).json({ data: token, success: true });
+  // res.status(StatusCodes.CREATED).json({ success: true, data: user });
 });
 
 const login = asyncWrapper(async (req, res, next) => {
